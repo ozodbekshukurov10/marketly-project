@@ -1,0 +1,129 @@
+/* Umumiy Sozlamalar */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    color: white;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Navbar */
+.navbar {
+    padding: 20px 0;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+}
+
+.nav-flex { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 26px; font-weight: 800; }
+.logo span { color: #ffcc00; }
+.nav-links { list-style: none; display: flex; gap: 25px; }
+.nav-links a { text-decoration: none; color: white; opacity: 0.8; transition: 0.3s; }
+.nav-links a:hover { opacity: 1; color: #ffcc00; }
+.btn-nav { background: #ffcc00; border: none; padding: 10px 25px; border-radius: 50px; font-weight: 700; cursor: pointer; }
+
+/* Header */
+.details-header {
+    text-align: center;
+    padding: 80px 0 50px;
+}
+
+.details-header h1 { font-size: 45px; margin-bottom: 20px; }
+.details-header h1 span { color: #ffcc00; }
+.details-header p { color: rgba(255, 255, 255, 0.8); font-size: 18px; }
+
+/* Details List */
+.details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.detail-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 40px;
+    border-radius: 30px;
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    transition: 0.4s;
+    animation: fadeInUp 0.8s ease backwards;
+}
+
+.detail-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(10px);
+    border-left: 6px solid #ffcc00;
+}
+
+.card-icon { font-size: 50px; }
+.card-text h2 { margin-bottom: 10px; color: #ffcc00; }
+.card-text p { line-height: 1.7; color: rgba(255, 255, 255, 0.9); }
+
+/* FAQ Section */
+.faq-section {
+    margin-top: 60px;
+    padding-bottom: 50px;
+}
+
+.faq-title { text-align: center; margin-bottom: 40px; font-size: 32px; }
+.faq-title span { color: #ffcc00; }
+
+.faq-item {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.faq-item h3 { font-size: 20px; margin-bottom: 10px; color: #ffcc00; }
+.faq-item p { color: rgba(255, 255, 255, 0.8); }
+
+/* Bottom CTA */
+.bottom-cta {
+    text-align: center;
+    padding: 50px 0 100px;
+}
+
+.cta-btn {
+    display: inline-block;
+    background: white;
+    color: #764ba2;
+    padding: 15px 50px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 20px;
+    transition: 0.3s;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.cta-btn:hover {
+    background: #ffcc00;
+    color: #333;
+    transform: scale(1.1);
+}
+
+/* Animatsiya */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+    .detail-card { flex-direction: column; text-align: center; }
+    .details-header h1 { font-size: 32px; }
+}

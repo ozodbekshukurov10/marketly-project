@@ -1,0 +1,142 @@
+/* Umumiy Sozlamalar */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    color: white;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Navbar */
+.navbar {
+    padding: 20px 0;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+}
+
+.nav-flex { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 26px; font-weight: 800; }
+.logo span { color: #ffcc00; }
+.nav-links { list-style: none; display: flex; gap: 20px; }
+.nav-links a { text-decoration: none; color: white; opacity: 0.8; }
+.btn-nav { background: #ffcc00; border: none; padding: 8px 20px; border-radius: 5px; font-weight: 700; cursor: pointer; }
+
+/* Header */
+.start-header {
+    text-align: center;
+    padding: 60px 0;
+}
+
+.start-header h1 { font-size: 42px; margin-bottom: 15px; }
+.start-header h1 span { color: #ffcc00; }
+
+/* Qadamlar (Vertical Steps) */
+.steps-wrapper {
+    position: relative;
+    padding-left: 50px;
+}
+
+.vertical-line {
+    position: absolute;
+    left: 17px;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.step-item {
+    position: relative;
+    margin-bottom: 60px;
+    animation: fadeInRight 0.8s ease backwards;
+}
+
+.step-number {
+    position: absolute;
+    left: -50px;
+    width: 40px;
+    height: 40px;
+    background: #ffcc00;
+    color: #333;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    z-index: 2;
+}
+
+.step-content {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+.step-content:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ffcc00;
+}
+
+.step-content h2 { margin-bottom: 15px; color: #ffcc00; }
+.step-content p { color: rgba(255, 255, 255, 0.8); line-height: 1.6; margin-bottom: 25px; }
+
+/* Formalar va Tugmalar */
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.step-btn, .final-btn {
+    background: #ffcc00;
+    color: #333;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.final-btn {
+    width: 100%;
+    font-size: 18px;
+    background: white;
+    color: #764ba2;
+}
+
+.final-btn:hover { background: #ffcc00; color: #333; }
+
+.mini-grid { display: flex; gap: 10px; }
+.mini-grid span { background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 5px; font-size: 13px; }
+
+/* Animatsiya */
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 600px) {
+    .input-group { flex-direction: column; }
+    .step-content { padding: 25px; }
+}

@@ -1,0 +1,163 @@
+/* Umumiy Sozlamalar */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    /* Rasmdagi kabi binafsha gradient fon */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    color: white;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Navigatsiya */
+.navbar {
+    padding: 25px 0;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.logo span {
+    color: #ffcc00; /* Rasmdagi sariq rang */
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.nav-links a.active, .nav-links a:hover {
+    color: #ffcc00;
+}
+
+.btn-contact {
+    background: white;
+    color: #764ba2;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Sarlavha qismi */
+.page-header {
+    text-align: center;
+    padding: 80px 0 50px;
+}
+
+.page-header h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.page-header h1 span {
+    color: #ffcc00;
+}
+
+.page-header p {
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Ketma-ket (Vertical) Xizmatlar */
+.services-vertical-list {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding-bottom: 100px;
+}
+
+.service-block {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 40px;
+    border-radius: 20px;
+    transition: 0.4s ease;
+    animation: slideUp 0.8s ease backwards;
+}
+
+.service-block:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(10px);
+    border-left: 5px solid #ffcc00;
+}
+
+.step-num {
+    font-size: 14px;
+    background: #ffcc00;
+    color: #333;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: 800;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.service-content h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.service-content p {
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+}
+
+.tags {
+    display: flex;
+    gap: 10px;
+}
+
+.tags span {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+/* Animatsiyalar */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-links { display: none; }
+    .page-header h1 { font-size: 32px; }
+}
