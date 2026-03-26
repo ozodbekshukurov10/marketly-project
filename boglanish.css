@@ -126,3 +126,7 @@ body {
     #emailText { font-size: 16px; }
     .contact-card { padding: 30px; }
 }
+
+html {
+    scroll-behavior: smooth;
+}

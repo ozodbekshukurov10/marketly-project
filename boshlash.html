@@ -2,75 +2,68 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketly - Ishni Boshlash</title>
+    <title>Marketly - Ro'yxatdan o'tish</title>
     <link rel="stylesheet" href="boshlash.css">
-    <link href="https://fonts.googleapis.com" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Navigatsiya -->
-    <nav class="navbar">
-        <div class="container nav-flex">
-            <div class="logo">Marketly<span>.</span></div>
-            <ul class="nav-links">
-                <li><a href="index.html">Bosh sahifa</a></li>
-                <li><a href="xizmatlar.html">Xizmatlar</a></li>
-                <li><a href="mahsulotlar.html">Mahsulotlar</a></li>
-            </ul>
-            <button class="btn-nav">Kirish</button>
+<div class="container">
+    <!-- 1-Bosqich -->
+    <section class="step-card active" id="step1">
+        <div class="step-num">1</div>
+        <h2>Bepul Ro'yxatdan O'ting</h2>
+        <p>Kech qanday to'lovlarsiz o'z kabinetingizni yarating.</p>
+        <div class="input-row">
+            <input type="email" id="email" placeholder="ozodbek201024@gmail.com">
+            <button onclick="saveEmail()">Davom etish</button>
         </div>
-    </nav>
+    </section>
 
-    <!-- Boshlash Bo'limi -->
-    <main class="start-section">
-        <div class="container">
-            <header class="start-header">
-                <h1>Muvaffaqiyatni <span>Hozir Boshlang</span></h1>
-                <p>3 ta oddiy qadamda biznesingizni mutlaqo bepul yangi bosqichga olib chiqing.</p>
-            </header>
-
-            <div class="steps-wrapper">
-                <div class="vertical-line"></div>
-
-                <!-- 1-Qadam -->
-                <div class="step-item">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h2>Bepul Ro'yxatdan O'ting</h2>
-                        <p>Hech qanday karta ma'lumotlarisiz va to'lovlarsiz o'z shaxsiy kabinetingizni yarating. Bu atigi 1 daqiqa vaqt oladi.</p>
-                        <div class="input-group">
-                            <input type="email" placeholder="Email manzilingizni kiriting">
-                            <button class="step-btn">Davom etish</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2-Qadam -->
-                <div class="step-item">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h2>Xizmatni Tanlang</h2>
-                        <p>Tadbirkor yoki xaridor</p>
-                        <div class="mini-grid">
-                            <span>Tadbirkor</span> <span>Xaridor</span> <span>tomoshabin</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3-Qadam -->
-                <div class="step-item">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h2>Natijani Qabul Qiling</h2>
-                        <p>Bizning professional jamoamiz yoki AI tizimimiz loyihangiz ustida ish boshlaydi. Siz esa natijalarni real vaqtda kuzatib borasiz.</p>
-                        <button class="final-btn">Loyihani Boshlash 🚀</button>
-                    </div>
-                </div>
-
-            </div>
+    <!-- 2-Bosqich -->
+    <section class="step-card" id="step2">
+        <div class="step-num">2</div>
+        <h2>Xizmatni Tanlang</h2>
+        <p>Siz kimsiz? O'zingizga mos rolni tanlang:</p>
+        <div class="role-group">
+            <button onclick="saveRole('Tadbirkor')">Tadbirkor</button>
+            <button onclick="saveRole('Xaridor')">Xaridor</button>
+            <button onclick="saveRole('Tomoshabin')">Tomoshabin</button>
         </div>
-    </main>
+    </section>
 
+    <!-- 3-Bosqich -->
+    <section class="step-card" id="step3">
+        <div class="step-num">3</div>
+        <h2>Natijani Qabul Qiling</h2>
+        <p>Loyihangiz ustida ish boshlanadi. Jarayonni kuzatib boring.</p>
+        <a href="profile.html" class="start-link" onclick="finalStep()">Boshlash 🚀</a>
+    </section>
+</div>
+
+<script>
+    let userData = { email: '', role: '' };
+
+    function saveEmail() {
+        userData.email = document.getElementById('email').value;
+        if(userData.email) {
+            document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function saveRole(role) {
+        userData.role = role;
+        // Serverga yuborish
+        fetch('/save-data', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(userData)
+        });
+        document.getElementById('step3').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function finalStep() {
+        alert("Muvaffaqiyatli yakunlandi!");
+    }
+</script>
 </body>
 </html>

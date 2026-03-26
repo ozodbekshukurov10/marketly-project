@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Marketly - Profil Ma'lumotlari</title>
+    <link rel="stylesheet" href="boshlash.css"> <!-- Avvalgi uslubdan foydalanamiz -->
+    <style>
+        .profile-card { margin-top: 50px; animation: fadeIn 0.5s ease; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .full-width { grid-column: span 2; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <section class="step-card profile-card">
+        <div class="step-num">!</div>
+        <h2>Shaxsiy Ma'lumotlar</h2>
+        <p>Iltimos, profilingizni yakunlash uchun quyidagi ma'lumotlarni to'ldiring:</p>
+        
+        <form id="profileForm" class="input-grid">
+            <input type="text" id="firstname" placeholder="Ismingiz" required>
+            <input type="text" id="lastname" placeholder="Familiyangiz" required>
+            <input type="number" id="age" placeholder="Yoshingiz" required>
+            <input type="number" id="birthYear" placeholder="Tug'ilgan yilingiz" required>
+            <input type="tel" id="phone" class="full-width" placeholder="Telefon raqamingiz (+998...)" required>
+            
+            <button type="submit" class="full-width"><a href="role-select.html">Ro'yxatdan o'tishni yakunlash 🚀</a></button>
+        </form>
+    </section>
+</div>
+
+<script>
+// Boshlash sahifasidagi script ichiga qo'shing:
+function finalStep() {
+    // Gmail va Rolni vaqtincha xotiraga saqlaymiz
+    localStorage.setItem('marketly_user', JSON.stringify(userData));
+    // Yangi sahifaga o'tamiz
+    window.location.href = "profile.html";
+}
+
+
+document.getElementById('profileForm').onsubmit = function(e) {
+        e.preventDefault();
+        
+        // LocalStorage'dan avvalgi ma'lumotlarni olish (Gmail va Rol)
+        const savedData = JSON.parse(localStorage.getItem('marketly_user')) || {};
+
+        const finalData = {
+            ...savedData,
+            firstname: document.getElementById('firstname').value,
+            lastname: document.getElementById('lastname').value,
+            age: document.getElementById('age').value,
+            birthYear: document.getElementById('birthYear').value,
+            phone: document.getElementById('phone').value
+        };
+
+        // Serverga yuborish
+        fetch('/save-profile', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(finalData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert("Muvaffaqiyatli saqlandi! ✅");
+            window.location.href = "index.html"; // Asosiy sahifaga qaytarish
+        });
+    };
+</script>
+</body>
+</html>
