@@ -68,6 +68,25 @@ document.getElementById('profileForm').onsubmit = function(e) {
             window.location.href = "index.html"; // Asosiy sahifaga qaytarish
         });
     };
+
+    document.getElementById('profileForm').onsubmit = function(e) {
+    e.preventDefault();
+    
+    const profileData = {
+        firstname: document.getElementById('firstname').value,
+        lastname: document.getElementById('lastname').value,
+        age: document.getElementById('age').value,
+        phone: document.getElementById('phone').value,
+        isRegistered: true // Ro'yxatdan o'tganlik belgisi
+    };
+
+    // Ma'lumotlarni brauzer xotirasiga (LocalStorage) saqlash
+    localStorage.setItem('marketly_profile', JSON.stringify(profileData));
+    
+    // Rol tanlash sahifasiga o'tish
+    window.location.href = "role-select.html";
+};
+
 </script>
 </body>
 </html>

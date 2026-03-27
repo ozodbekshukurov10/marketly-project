@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketly - E'lonlar Tasmasi</title>
+    <link rel="stylesheet" href="feed.css">
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Yuqori Navigatsiya -->
+    <header class="feed-header">
+        <div class="container header-flex">
+            <div class="logo" onclick="window.location.href='index.html'">
+                Marketly<span>.</span>
+            </div>
+
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" oninput="searchProducts()" placeholder="Mahsulotlarni qidirish...">
+                <button class="search-btn">Qidirish</button>
+            </div>
+
+            <div class="user-menu">
+                <a href="kabinet.html" class="cabinet-btn">
+                    <span class="icon">👤</span>
+                    <span id="cabinetText">Kirish</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Asosiy Kontent -->
+    <main class="container">
+        <div class="feed-info">
+            <h1>Barcha e'lonlar</h1>
+            <p id="productCount">Yuklanmoqda...</p>
+        </div>
+
+        <!-- Mahsulotlar To'plami (Grid) -->
+        <div class="product-grid" id="productGrid">
+            <!-- JavaScript orqali to'ldiriladi -->
+        </div>
+    </main>
+
+    <script>
+        // 1. Ma'lumotlar bazasi (Demo mahsulotlar)
+        const allProducts = [
+            { id: 1, title: "iPhone 15 Pro Max, 256 GB", price: "14 500 000", img: "https://loremflickr.com", rating: "4.9" },
+            { id: 2, title: "Zamonaviy Ofis jihozlari to'plami", price: "3 200 000", img: "https://loremflickr.com", rating: "4.7" },
+            { id: 3, title: "MacBook Air M2, 13.6-inch", price: "12 800 000", img: "https://loremflickr.com", rating: "5.0" },
+            { id: 4, title: "SMM va Marketing xizmatlari", price: "500 000", img: "https://loremflickr.com", rating: "4.8" },
+            { id: 5, title: "Nike Air Jordan Retro 1", price: "1 100 000", img: "https://loremflickr.com", rating: "4.6" },
+            { id: 6, title: "Aqlli soat Apple Watch Series 9", price: "4 500 000", img: "https://loremflickr.com", rating: "4.9" },
+            { id: 7, title: "Kreativ Logotip dizayni", price: "250 000", img: "https://loremflickr.com", rating: "4.5" },
+            { id: 8, title: "Simsiz quloqchinlar AirPods Pro 2", price: "2 300 000", img: "https://loremflickr.com", rating: "4.8" }
+        ];
+
+        // 2. Mahsulotlarni ekranga chiqarish funksiyasi
+        function displayProducts(products) {
+            const grid = document.getElementById('productGrid');
+            const countLabel = document.getElementById('productCount');
+            grid.innerHTML = "";
+
+            if (products.length === 0) {
+                grid.innerHTML = `<div class="no-results">Hech narsa topilmadi 😕</div>`;
+                countLabel.innerText = "0 ta mahsulot";
+                return;
+            }
+
+            countLabel.innerText = `${products.length} ta mahsulot topildi`;
+
+            products.forEach(item => {
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <div class="product-img">
+                            <img src="${item.img}" alt="${item.title}" onerror="this.src='https://picsum.photos{item.id}'">
+                            <button class="wishlist-btn">♡</button>
+                        </div>
+                        <div class="product-details">
+                            <h3 class="product-title">${item.title}</h3>
+                            <div class="product-rating">⭐️ ${item.rating} (45 sharh)</div>
+                            <div class="product-footer">
+                                <span class="product-price">${item.price} UZS</span>
+                                <button class="cart-btn">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // 3. Qidiruv mantiqi
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProducts.filter(p => 
+                p.title.toLowerCase().includes(query)
+            );
+            displayProducts(filtered);
+        }
+
+        // 4. Sahifa yuklanganda bajariladigan ishlar
+        window.onload = function() {
+            // Mahsulotlarni chiqarish
+            displayProducts(allProducts);
+
+            // Xotiradan foydalanuvchi ismini tekshirish
+            const savedData = localStorage.getItem('marketly_profile');
+            if (savedData) {
+                const user = JSON.parse(savedData);
+                if (user.firstname) {
+                    document.getElementById('cabinetText').innerText = user.firstname;
+                }
+            }
+        };
+        // feed.html ichidagi renderGrid funksiyasiga qo'shing:
+grid.innerHTML += `
+    <div class="card">
+        <div class="card-image">
+            <img src="${item.img}">
+            <button class="compare-btn" onclick="addToCompare(${item.id})">⚖️</button>
+        </div>
+        <!-- ... qolgan kodlar ... -->
+    </div>
+`;
+
+// JS funksiyasi:
+function addToCompare(id) {
+    let list = JSON.parse(localStorage.getItem('compare_list')) || [];
+    const product = productsData.find(p => p.id === id);
+    
+    if(!list.find(p => p.id === id)) {
+        list.push(product);
+        localStorage.setItem('compare_list', JSON.stringify(list));
+        alert("Solishtirishga qo'shildi! ⚖️");
+    }
+}
+
+    </script>
+</body>
+</html>

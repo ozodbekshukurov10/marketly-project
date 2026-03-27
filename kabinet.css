@@ -1,0 +1,108 @@
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+body { background-color: #f2f4f7; padding: 40px 0; }
+
+.cabinet-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 30px;
+    padding: 0 20px;
+}
+
+/* Sidebar */
+.sidebar {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    height: fit-content;
+}
+
+.user-brief {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.avatar {
+    width: 50px; height: 50px;
+    background: #f0f2f5;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+}
+
+.user-info h3 { font-size: 18px; color: #1f2026; }
+.user-info p { font-size: 13px; color: #8b8e99; }
+
+.side-nav a {
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: #1f2026;
+    font-size: 15px;
+    border-radius: 10px;
+    transition: 0.2s;
+    margin-bottom: 5px;
+}
+
+.side-nav a:hover, .side-nav a.active {
+    background: #f0f2f5;
+    font-weight: 600;
+}
+
+.logout-btn { color: #f24141 !important; margin-top: 10px; }
+
+/* Main Content */
+.main-content {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+}
+
+.info-section h1 { font-size: 24px; margin-bottom: 32px; }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.input-box { display: flex; flex-direction: column; gap: 8px; }
+.input-box.full { grid-column: span 2; }
+
+.input-box label { font-size: 13px; color: #8b8e99; }
+.input-box input {
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    background: #f9f9f9;
+}
+
+.input-box input:focus { border-color: #7e22ce; background: #fff; }
+
+.save-btn {
+    background: #7e22ce;
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.save-btn:hover { background: #6b1cb1; }
+
+/* Mobile */
+@media (max-width: 800px) {
+    .cabinet-wrapper { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .input-box.full { grid-column: span 1; }
+}

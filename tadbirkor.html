@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketly - Tadbirkor Paneli</title>
+    <link rel="stylesheet" href="tadbirkor.css">
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Chap tomondagi menyu -->
+        <aside class="sidebar">
+            <div class="logo">Marketly<span>.</span></div>
+            <nav class="side-nav">
+                <a href="#" class="active">📊 Boshqaruv</a>
+                <a href="#">📦 Mahsulotlarim</a>
+                <a href="#">💬 Xabarlar</a>
+                <a href="#">⚙️ Sozlamalar</a>
+                <a href="index.html" class="logout">Logout 🚪</a>
+            </nav>
+        </aside>
+
+        <!-- Asosiy qism -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Xush kelibsiz, <span>Tadbirkor!</span></h1>
+                <div class="user-profile">ID: 8542 | Premium Plan</div>
+            </header>
+
+            <!-- Statistika -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Ko'rilganlar</h3>
+                    <p class="value">1,240</p>
+                    <span class="trend">+12% bugun</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Sotuvlar</h3>
+                    <p class="value">45</p>
+                    <span class="trend">+5% haftalik</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Daromad</h3>
+                    <p class="value">0 UZS</p>
+                    <span class="trend">Bepul plan</span>
+                </div>
+            </div>
+
+            <!-- Mahsulot qo'shish formasi -->
+            <section class="add-product-section">
+                <h2>Yangi mahsulot qo'shish</h2>
+                <form class="product-form">
+                    <div class="form-group">
+                        <input type="text" placeholder="Mahsulot nomi" required>
+                        <input type="number" placeholder="Narxi (UZS)" required>
+                    </div>
+                    <textarea placeholder="Mahsulot haqida qisqacha ma'lumot..."></textarea>
+                    <div class="file-upload">
+                        <label for="image">📸 Rasm yuklash</label>
+                        <input type="file" id="image" hidden>
+                    </div>
+                    <button type="submit" class="submit-btn"><a href="feed.html">E'lonni joylashtirish </a></button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+<script>
+    document.querySelector('.product-form').onsubmit = function(e) {
+    e.preventDefault();
+    
+    const productData = {
+        productName: this.querySelectorAll('input')[0].value,
+        price: this.querySelectorAll('input')[1].value,
+        description: this.querySelector('textarea').value
+    };
+
+    fetch('/add-product', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(productData)
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("Mahsulot muvaffaqiyatli saqlandi! 🚀");
+        this.reset(); // Formani tozalash
+    });
+};
+
+</script>
+
+</body>
+</html>
