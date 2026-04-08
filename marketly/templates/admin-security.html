@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketly - Security Center</title>
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <style>
+        :root {
+            --bg: #07111f;
+            --panel: rgba(10, 25, 47, 0.88);
+            --border: rgba(148, 163, 184, 0.18);
+            --text: #e2e8f0;
+            --muted: #9fb2c9;
+            --accent: #4ade80;
+            --danger: #f87171;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Segoe UI, sans-serif; color: var(--text); background: radial-gradient(circle at top, #12345e 0%, #07111f 55%, #020617 100%); }
+        .page { max-width: 1280px; margin: 0 auto; padding: 28px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+        .topbar h1 { margin: 0 0 8px; }
+        .topbar p { margin: 0; color: var(--muted); }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 14px; text-decoration: none; border: 1px solid var(--border); color: var(--text); background: rgba(255,255,255,0.06); cursor: pointer; font-weight: 600; }
+        .btn.primary { background: rgba(74, 222, 128, 0.14); color: #d1fae5; }
+        .btn.danger { background: rgba(248, 113, 113, 0.14); color: #fecaca; }
+        .hero { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 18px; margin-bottom: 20px; }
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 24px; padding: 24px; backdrop-filter: blur(12px); box-shadow: 0 18px 50px rgba(2, 6, 23, 0.28); }
+        .status-pill { display: inline-block; padding: 8px 12px; border-radius: 999px; font-size: 13px; background: rgba(74, 222, 128, 0.12); color: #bbf7d0; }
+        .status-pill.off { background: rgba(248, 113, 113, 0.12); color: #fecaca; }
+        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .topic-card { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 18px; }
+        .topic-card h3 { margin-top: 0; margin-bottom: 10px; }
+        .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .chip { padding: 6px 10px; border-radius: 999px; background: rgba(148,163,184,0.12); color: #dbeafe; font-size: 13px; }
+        .list { margin: 0; padding-left: 18px; color: var(--muted); }
+        .event-list { display: grid; gap: 10px; }
+        .event-item { border-radius: 16px; padding: 14px; background: rgba(2,6,23,0.42); border: 1px solid var(--border); font-family: Consolas, monospace; color: #cbd5e1; }
+        @media (max-width: 900px) {
+            .hero, .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="ios26-ui">
+    <div class="page">
+        <form id="csrfForm" style="display:none;">{% csrf_token %}</form>
+        <div class="topbar">
+            <div>
+                <h1>Security Center</h1>
+                <p>Admin uchun alohida kiberxavfsizlik nazorati, bilim yo‘nalishlari va audit hodisalari.</p>
+            </div>
+            <div class="actions">
+                <a class="btn" href="admin-panel.html">Dashboard</a>
+                <a class="btn" href="manager-panel.html">Manager Panel</a>
+                <button class="btn danger" id="logoutBtn" type="button">Chiqish</button>
+            </div>
+        </div>
+
+        <section class="hero">
+            <div class="card">
+                <span class="status-pill" id="securityBadge">Faol</span>
+                <h2 style="margin-bottom:8px;">Sayt himoyasi</h2>
+                <p id="securityMeta" style="color:var(--muted);">Himoya holati yuklanmoqda...</p>
+                <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;">
+                    <button id="toggleSecurityBtn" class="btn primary" type="button">Himoyani boshqarish</button>
+                </div>
+                <ul class="list" id="protectionList" style="margin-top:18px;"></ul>
+            </div>
+            <div class="card">
+                <h2>Amaliy tavsiyalar</h2>
+                <ul class="list" id="recommendationList"></ul>
+            </div>
+        </section>
+
+        <section class="card" style="margin-bottom:20px;">
+            <h2>Kiberxavfsizlik bo‘limlari</h2>
+            <div class="topic-grid" id="topicGrid"></div>
+        </section>
+
+        <section class="grid">
+            <div class="card">
+                <h2>So‘nggi hodisalar</h2>
+                <div class="event-list" id="eventList"></div>
+            </div>
+            <div class="card">
+                <h2>Admin eslatma</h2>
+                <p style="color:var(--muted); line-height:1.7;">
+                    Bu sahifa admin uchun alohida qo‘shildi. Endi xavfsizlik holati, audit loglar va asosiy kiberxavfsizlik yo‘nalishlari
+                    bir joydan ko‘rinadi. Bu adminning tezkor qaror qabul qilishini osonlashtiradi.
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let securityData = null;
+
+        function getCsrfToken() {
+            const tokenField = document.querySelector('#csrfForm input[name="csrfmiddlewaretoken"]');
+            return tokenField ? tokenField.value : '';
+        }
+
+        function renderPage(data) {
+            securityData = data;
+
+            const badge = document.getElementById('securityBadge');
+            badge.textContent = data.security.enabled ? 'Faol' : 'O‘chiq';
+            badge.classList.toggle('off', !data.security.enabled);
+            document.getElementById('securityMeta').textContent =
+                `Oxirgi o'zgarish: ${data.security.updatedAt || '-'} | Admin: ${data.security.updatedBy || '-'}`;
+
+            const protectionList = document.getElementById('protectionList');
+            protectionList.innerHTML = '';
+            (data.security.protections || []).forEach((item) => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                protectionList.appendChild(li);
+            });
+
+            const recommendationList = document.getElementById('recommendationList');
+            recommendationList.innerHTML = '';
+            (data.recommendations || []).forEach((item) => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                recommendationList.appendChild(li);
+            });
+
+            const topicGrid = document.getElementById('topicGrid');
+            topicGrid.innerHTML = '';
+            (data.securityTopics || []).forEach((topic) => {
+                const card = document.createElement('article');
+                card.className = 'topic-card';
+                card.innerHTML = `
+                    <h3>${topic.title}</h3>
+                    <div class="chip-row">${(topic.items || []).map((item) => `<span class="chip">${item}</span>`).join('')}</div>
+                    <p style="margin:0; color:var(--muted); line-height:1.6;">${topic.summary || ''}</p>
+                `;
+                topicGrid.appendChild(card);
+            });
+
+            const eventList = document.getElementById('eventList');
+            eventList.innerHTML = '';
+            if (!(data.recentEvents || []).length) {
+                eventList.innerHTML = '<div class="event-item">Hozircha xavfsizlik hodisalari yo‘q.</div>';
+                return;
+            }
+
+            data.recentEvents.forEach((item) => {
+                const eventNode = document.createElement('div');
+                eventNode.className = 'event-item';
+                eventNode.textContent = item;
+                eventList.appendChild(eventNode);
+            });
+        }
+
+        async function loadSecurityOverview() {
+            const sessionResponse = await fetch('/api/admin/session');
+            const sessionData = await sessionResponse.json();
+            if (!sessionData.authenticated) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const response = await fetch('/api/admin/security/overview');
+            if (!response.ok) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const data = await response.json();
+            renderPage(data);
+        }
+
+        document.getElementById('toggleSecurityBtn').addEventListener('click', async () => {
+            if (!securityData) return;
+
+            const response = await fetch('/api/admin/security/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ enabled: !securityData.security.enabled })
+            });
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+            renderPage(data);
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/admin/logout', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken()
+                }
+            });
+            localStorage.removeItem('marketly_active_user');
+            window.location.href = 'login.html';
+        });
+
+        loadSecurityOverview();
+    </script>
+    <script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>

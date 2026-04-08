@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-profile-java
+  namespace: marketly
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: identity-profile-java
+  template:
+    metadata:
+      labels:
+        app: identity-profile-java
+    spec:
+      containers:
+        - name: identity-profile-java
+          image: REGION-docker.pkg.dev/PROJECT_ID/marketly/identity-profile-java:latest
+          ports:
+            - containerPort: 8082
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-profile-java
+  namespace: marketly
+spec:
+  selector:
+    app: identity-profile-java
+  ports:
+    - port: 80
+      targetPort: 8082

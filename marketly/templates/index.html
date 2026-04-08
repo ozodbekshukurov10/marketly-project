@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketly - Asosiy Sahifa</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <!-- Google Fonts orqali shriftlarni ulaymiz -->
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+</head>
+<body class="ios26-ui">
+
+    <header class="hero-section">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo"><img class="logo-mark" src="{% static 'images/marketly-logo.svg' %}" alt="Marketly logo">Marketly<span>.</span></div>
+                <ul class="nav-links">
+                    <li><a href="xizmatlar.html">Xizmatlar</a></li>
+                    <li><a href="mahsulotlar.html">Mahsulotlar</a></li>
+                    <li><a href="#">Biz haqimizda</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <a class="btn-contact" href="boglanish.html">Boglanish</a>
+                </div>
+            </nav>
+
+            <div class="hero-content">
+                <h1>Biznesingizni <br><span>Yangi Bosqichga</span> Olib Chiqing</h1>
+                <p>Marketly bilan savdolaringizni avtomatlashtiring va mijozlar oqimini professional darajada boshqaring.</p>
+                <div class="hero-btns">
+                    <a href="#" class="btn-primary" id="openEntryModal">Kirish</a>
+                    <a href="batafsil_malumot.html" class="btn-secondary">Batafsil ma'lumot</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="entryModal" style="position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(2,6,23,0.68); backdrop-filter:blur(16px); z-index:100;">
+        <div class="login-card motion-item" style="width:min(560px, 96vw); padding:32px; border-radius:32px; background:rgba(9,18,34,0.92); border:1px solid rgba(148,163,184,0.16); box-shadow:0 30px 80px rgba(2,6,23,0.52);">
+            <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:24px;">
+                <div>
+                    <h1 style="margin-bottom:10px;">Kirish</h1>
+                    <p style="color:#93a7c2; margin:0;">Avval Gmail kiriting. So‘ng kirish yoki yangi account ochishni tanlaysiz.</p>
+                </div>
+                <button id="closeEntryModal" class="btn-contact" style="min-width:44px; padding:0 16px;">X</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr; gap:18px;">
+                <div style="padding:22px; border-radius:24px; background:rgba(255,255,255,0.03); border:1px solid rgba(148,163,184,0.12);">
+                    <h3 style="margin-bottom:10px;">Foydalanuvchi</h3>
+                    <p style="margin-bottom:16px;">Gmail kiriting. Keyingi oynada ism, familiya va boshqa ma'lumotlar so‘raladi.</p>
+                    <input type="email" id="userEmail" placeholder="Gmail kiriting" style="width:100%; margin-bottom:14px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <button type="button" class="btn-secondary" id="userLoginBtn" style="width:100%;">Kirish</button>
+                        <button type="button" class="btn-primary" id="userRegisterBtn" style="width:100%;">Yangi account ochish</button>
+                    </div>
+                    <div id="userFlowMessage" style="min-height:22px; color:#93a7c2; margin-top:12px;"></div>
+                </div>
+
+                <div style="padding:22px; border-radius:24px; background:rgba(255,255,255,0.03); border:1px solid rgba(148,163,184,0.12);">
+                    <h3 style="margin-bottom:10px;">Admin</h3>
+                    <p style="margin-bottom:16px;">Admin panelga kirish uchun emailingiz va parolingizni kiriting.</p>
+                    <form id="adminLoginForm">
+                        {% csrf_token %}
+                        <input type="email" id="email" placeholder="Email" required>
+                        <input type="password" id="password" placeholder="Parol" required>
+                        <label class="remember-row" style="display:flex; align-items:center; gap:10px; margin:10px 0 18px; color:#93a7c2;">
+                            <input type="checkbox" id="rememberMe" checked>
+                            <span>Faqat emailni eslab qolish</span>
+                        </label>
+                        <button type="submit" class="btn-primary" style="width:100%;">Admin panelga kirish</button>
+                        <div class="error" id="errorBox" style="min-height:22px; color:#ff8f86; margin-top:12px;"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const entryModal = document.getElementById('entryModal');
+    const openEntryModal = document.getElementById('openEntryModal');
+    const closeEntryModal = document.getElementById('closeEntryModal');
+
+    function getCsrfToken() {
+        const tokenField = document.querySelector('#adminLoginForm input[name="csrfmiddlewaretoken"]');
+        return tokenField ? tokenField.value : '';
+    }
+
+    function showEntryModal() {
+        entryModal.style.display = 'flex';
+    }
+
+    function hideEntryModal() {
+        entryModal.style.display = 'none';
+    }
+
+    function saveUserEmail() {
+        const email = document.getElementById('userEmail').value.trim();
+        const message = document.getElementById('userFlowMessage');
+
+        if (!email) {
+            message.textContent = 'Avval Gmail kiriting.';
+            return null;
+        }
+
+        const userData = JSON.parse(localStorage.getItem('marketly_user') || '{}');
+        const updated = { ...userData, email };
+        localStorage.setItem('marketly_user', JSON.stringify(updated));
+        return updated;
+    }
+
+    openEntryModal.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (openEntryModal.dataset.target === 'admin-panel') {
+            window.location.href = 'admin-panel.html';
+            return;
+        }
+        showEntryModal();
+    });
+
+    closeEntryModal.addEventListener('click', hideEntryModal);
+
+    entryModal.addEventListener('click', (event) => {
+        if (event.target === entryModal) {
+            hideEntryModal();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            hideEntryModal();
+        }
+    });
+
+    document.getElementById('userRegisterBtn').addEventListener('click', () => {
+        const userData = saveUserEmail();
+        if (!userData) return;
+        localStorage.setItem('marketly_entry_mode', 'register');
+        window.location.href = 'profile.html';
+    });
+
+    document.getElementById('userLoginBtn').addEventListener('click', () => {
+        const userData = saveUserEmail();
+        if (!userData) return;
+
+        const savedProfile = JSON.parse(localStorage.getItem('marketly_profile') || 'null');
+        if (savedProfile && savedProfile.email && savedProfile.email.toLowerCase() === userData.email.toLowerCase()) {
+            localStorage.setItem('marketly_active_user', JSON.stringify({
+                email: savedProfile.email,
+                firstname: savedProfile.firstname || '',
+                role: savedProfile.role || 'Xaridor',
+                isAdmin: false
+            }));
+            window.location.href = savedProfile.role === 'Tadbirkor' ? 'tadbirkor.html' : 'xaridor.html';
+            return;
+        }
+
+        localStorage.setItem('marketly_entry_mode', 'login');
+        window.location.href = 'profile.html';
+    });
+
+    async function restoreSession() {
+        const activeUser = JSON.parse(localStorage.getItem('marketly_active_user') || 'null');
+        if (activeUser && activeUser.isAdmin) {
+            document.getElementById('openEntryModal').dataset.target = 'admin-panel';
+        }
+
+        const response = await fetch('/api/admin/session');
+        const data = await response.json();
+        if (data.authenticated) {
+            document.getElementById('openEntryModal').dataset.target = 'admin-panel';
+        }
+
+        const savedLogin = JSON.parse(localStorage.getItem('marketly_saved_login') || 'null');
+        if (savedLogin && savedLogin.email) {
+            document.getElementById('email').value = savedLogin.email;
+        }
+
+        const marketlyUser = JSON.parse(localStorage.getItem('marketly_user') || 'null');
+        if (marketlyUser && marketlyUser.email) {
+            document.getElementById('userEmail').value = marketlyUser.email;
+        }
+    }
+
+    document.getElementById('adminLoginForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const rememberMe = document.getElementById('rememberMe').checked;
+        const errorBox = document.getElementById('errorBox');
+        errorBox.textContent = '';
+
+        const response = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            errorBox.textContent = data.message || "Kirishda xatolik yuz berdi";
+            return;
+        }
+
+        if (rememberMe) {
+            localStorage.setItem('marketly_saved_login', JSON.stringify({ email }));
+        } else {
+            localStorage.removeItem('marketly_saved_login');
+        }
+
+        localStorage.setItem('marketly_active_user', JSON.stringify({
+            email,
+            isAdmin: true,
+            remembered: rememberMe
+        }));
+
+        window.location.href = 'admin-panel.html';
+    });
+
+    restoreSession();
+</script>
+<script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketly - Admin Panel</title>
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --panel: #ffffff;
+            --accent: #0f766e;
+            --accent-soft: #dff6f3;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Segoe UI, sans-serif; background: linear-gradient(180deg, #effcf9 0%, var(--bg) 45%); color: var(--text); }
+        .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+        .sidebar { background: #0f172a; color: #fff; padding: 28px; }
+        .brand { font-size: 28px; font-weight: 700; margin-bottom: 28px; }
+        .brand span { color: #5eead4; }
+        .menu button, .menu a { display: block; width: 100%; text-align: left; padding: 14px 16px; margin-bottom: 10px; border: 0; border-radius: 14px; background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; font-size: 16px; text-decoration: none; }
+        .menu button.active, .menu a.active { background: #14b8a6; color: #062c28; font-weight: 700; }
+        .sidebar .small { margin-top: 24px; color: rgba(255,255,255,0.7); font-size: 14px; }
+        .logout-btn { margin-top: 18px; background: transparent; border: 1px solid rgba(255,255,255,0.24); color: #fff; padding: 12px 14px; width: 100%; border-radius: 12px; cursor: pointer; }
+        main { padding: 30px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .title h1 { margin: 0 0 8px; }
+        .title p { margin: 0; color: var(--muted); }
+        .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05); }
+        .stat small { color: var(--muted); }
+        .stat strong { display: block; margin-top: 10px; font-size: 30px; }
+        .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 22px; padding: 22px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05); }
+        .hidden { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        th { color: var(--muted); font-weight: 600; }
+        .empty { color: var(--muted); padding: 18px 0; }
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 18px 0 8px; }
+        .category-card { background: var(--accent-soft); border-radius: 18px; padding: 16px; }
+        .category-card strong { display: block; font-size: 26px; margin-bottom: 8px; color: var(--accent); }
+        .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #ecfeff; color: #155e75; font-size: 13px; }
+        .security-box { display: grid; gap: 16px; }
+        .security-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .toggle-btn, .link-btn { border: 0; border-radius: 14px; padding: 12px 18px; cursor: pointer; font-weight: 700; text-decoration: none; }
+        .toggle-btn.on { background: #dcfce7; color: #166534; }
+        .toggle-btn.off { background: #fee2e2; color: #991b1b; }
+        .link-btn { background: #0f172a; color: #fff; }
+        .security-list { margin: 0; padding-left: 18px; color: var(--muted); }
+        .event-list { display: grid; gap: 10px; margin-top: 14px; }
+        .event-item { border: 1px solid var(--border); border-radius: 14px; padding: 14px; background: #f8fafc; color: #334155; font-family: Consolas, monospace; }
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="ios26-ui">
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand"><img class="logo-mark" src="{% static 'images/marketly-logo.svg' %}" alt="Marketly logo">Marketly<span>.</span></div>
+            <div class="menu">
+                <button class="active" data-tab="users">Foydalanuvchilar</button>
+                <button data-tab="products">Mahsulotlar</button>
+                <button data-tab="security">Xavfsizlik holati</button>
+                <a href="manager-panel.html">Manager Panel</a>
+                <a href="admin-security.html">Security Center</a>
+            </div>
+            <p class="small">Admin email: ozodbek201024@gmail.com</p>
+            <button class="logout-btn" id="logoutBtn">Chiqish</button>
+        </aside>
+        <main>
+            <form id="csrfForm" style="display:none;">{% csrf_token %}</form>
+            <div class="topbar">
+                <div class="title">
+                    <h1>Admin boshqaruv paneli</h1>
+                    <p>Foydalanuvchilar, mahsulotlar va xavfsizlik holati shu yerdan boshqariladi.</p>
+                </div>
+                <span class="pill" id="adminBadge">Admin</span>
+            </div>
+
+            <section class="stats">
+                <div class="stat">
+                    <small>Jami foydalanuvchilar</small>
+                    <strong id="totalUsers">0</strong>
+                </div>
+                <div class="stat">
+                    <small>Jami mahsulotlar</small>
+                    <strong id="totalProducts">0</strong>
+                </div>
+                <div class="stat">
+                    <small>Kategoriyalar</small>
+                    <strong id="totalCategories">0</strong>
+                </div>
+                <div class="stat">
+                    <small>Himoya holati</small>
+                    <strong id="securityState">ON</strong>
+                </div>
+            </section>
+
+            <section class="panel" id="usersPanel">
+                <h2>Barcha foydalanuvchilar</h2>
+                <div id="usersEmpty" class="empty hidden">Hozircha foydalanuvchilar yo‘q.</div>
+                <table id="usersTable" class="hidden">
+                    <thead>
+                        <tr>
+                            <th>Ism</th>
+                            <th>Email</th>
+                            <th>Telefon</th>
+                            <th>Rol</th>
+                            <th>Saqlangan vaqt</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+
+            <section class="panel hidden" id="productsPanel">
+                <h2>Mahsulotlar va kategoriyalar</h2>
+                <div class="category-grid" id="categoryGrid"></div>
+                <div id="productsEmpty" class="empty hidden">Hozircha mahsulotlar yo‘q.</div>
+                <table id="productsTable" class="hidden">
+                    <thead>
+                        <tr>
+                            <th>Nomi</th>
+                            <th>Kategoriya</th>
+                            <th>Narx</th>
+                            <th>Tavsif</th>
+                            <th>Qo‘shilgan vaqt</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+
+            <section class="panel hidden" id="securityPanel">
+                <h2>Sayt xavfsizligi</h2>
+                <div class="security-box">
+                    <div class="security-top">
+                        <div>
+                            <div class="pill" id="securityBadge">Faol</div>
+                            <p id="securityMeta">Himoya holati yuklanmoqda...</p>
+                        </div>
+                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                            <a class="link-btn" href="admin-security.html">Security Center</a>
+                            <button id="securityToggleBtn" class="toggle-btn on" type="button">O‘chirish</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Faol himoyalar</h3>
+                        <ul class="security-list" id="securityList"></ul>
+                    </div>
+                    <div>
+                        <h3>So‘nggi xavfsizlik hodisalari</h3>
+                        <div class="event-list" id="eventList"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let dashboardData = null;
+
+        function getCsrfToken() {
+            const tokenField = document.querySelector('#csrfForm input[name="csrfmiddlewaretoken"]');
+            return tokenField ? tokenField.value : '';
+        }
+
+        function renderUsers(users) {
+            const table = document.getElementById('usersTable');
+            const tbody = table.querySelector('tbody');
+            const empty = document.getElementById('usersEmpty');
+            tbody.innerHTML = '';
+
+            if (!users.length) {
+                table.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            table.classList.remove('hidden');
+
+            users.forEach((user) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.firstname || '-'} ${user.lastname || ''}</td>
+                    <td>${user.email || '-'}</td>
+                    <td>${user.phone || '-'}</td>
+                    <td>${user.role || '-'}</td>
+                    <td>${user.savedAt || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderProducts(products, categories) {
+            const table = document.getElementById('productsTable');
+            const tbody = table.querySelector('tbody');
+            const empty = document.getElementById('productsEmpty');
+            const categoryGrid = document.getElementById('categoryGrid');
+            tbody.innerHTML = '';
+            categoryGrid.innerHTML = '';
+
+            categories.forEach((category) => {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.innerHTML = `<strong>${category.count}</strong><div>${category.name}</div>`;
+                categoryGrid.appendChild(card);
+            });
+
+            if (!products.length) {
+                table.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            table.classList.remove('hidden');
+
+            products.forEach((product) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${product.title || product.productName || '-'}</td>
+                    <td>${product.category || 'Boshqa'}</td>
+                    <td>${product.price || '-'}</td>
+                    <td>${product.description || '-'}</td>
+                    <td>${product.createdAt || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSecurity(security, recentEvents) {
+            const badge = document.getElementById('securityBadge');
+            const meta = document.getElementById('securityMeta');
+            const list = document.getElementById('securityList');
+            const toggleBtn = document.getElementById('securityToggleBtn');
+            const state = document.getElementById('securityState');
+            const eventList = document.getElementById('eventList');
+
+            badge.textContent = security.enabled ? 'Faol' : 'O‘chiq';
+            badge.style.background = security.enabled ? '#dcfce7' : '#fee2e2';
+            badge.style.color = security.enabled ? '#166534' : '#991b1b';
+            meta.textContent = `Oxirgi o'zgarish: ${security.updatedAt || '-'} | Admin: ${security.updatedBy || '-'}`;
+            state.textContent = security.enabled ? 'ON' : 'OFF';
+
+            toggleBtn.textContent = security.enabled ? "O‘chirish" : 'Yoqish';
+            toggleBtn.className = `toggle-btn ${security.enabled ? 'on' : 'off'}`;
+
+            list.innerHTML = '';
+            (security.protections || []).forEach((item) => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                list.appendChild(li);
+            });
+
+            eventList.innerHTML = '';
+            if (!(recentEvents || []).length) {
+                eventList.innerHTML = '<div class="event-item">Hozircha xavfsizlik hodisalari yo‘q.</div>';
+                return;
+            }
+
+            recentEvents.forEach((eventText) => {
+                const item = document.createElement('div');
+                item.className = 'event-item';
+                item.textContent = eventText;
+                eventList.appendChild(item);
+            });
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.menu button').forEach((button) => {
+                button.classList.toggle('active', button.dataset.tab === tabName);
+            });
+            document.getElementById('usersPanel').classList.toggle('hidden', tabName !== 'users');
+            document.getElementById('productsPanel').classList.toggle('hidden', tabName !== 'products');
+            document.getElementById('securityPanel').classList.toggle('hidden', tabName !== 'security');
+        }
+
+        async function loadDashboard() {
+            const sessionResponse = await fetch('/api/admin/session');
+            const sessionData = await sessionResponse.json();
+            if (!sessionData.authenticated) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const response = await fetch('/api/admin/dashboard');
+            if (!response.ok) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const data = await response.json();
+            dashboardData = data;
+            document.getElementById('totalUsers').textContent = data.users.length;
+            document.getElementById('totalProducts').textContent = data.products.length;
+            document.getElementById('totalCategories').textContent = data.categories.length;
+            renderUsers(data.users);
+            renderProducts(data.products, data.categories);
+            renderSecurity(data.security, data.recentEvents);
+        }
+
+        document.querySelectorAll('.menu button').forEach((button) => {
+            button.addEventListener('click', () => switchTab(button.dataset.tab));
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/admin/logout', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken()
+                }
+            });
+            localStorage.removeItem('marketly_active_user');
+            window.location.href = 'login.html';
+        });
+
+        document.getElementById('securityToggleBtn').addEventListener('click', async () => {
+            if (!dashboardData) return;
+
+            const response = await fetch('/api/admin/security/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ enabled: !dashboardData.security.enabled })
+            });
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+            dashboardData.security = data.security;
+            dashboardData.recentEvents = data.recentEvents;
+            renderSecurity(dashboardData.security, dashboardData.recentEvents);
+        });
+
+        switchTab('users');
+        loadDashboard();
+    </script>
+    <script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>

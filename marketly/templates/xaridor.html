@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketly - Xaridor Paneli</title>
+    <link rel="stylesheet" href="{% static 'css/xaridor.css' %}">
+    <link rel="stylesheet" href="{% static 'css/solishtirish.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+</head>
+<body class="ios26-ui">
+    <header class="buyer-header">
+        <div class="container header-flex">
+            <div class="logo" onclick="window.location.href='feed.html'">
+                <img class="logo-mark" src="{% static 'images/marketly-logo.svg' %}" alt="Marketly logo">
+                Marketly<span>.</span>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" oninput="searchProducts()" placeholder="Xohlagan narsangizni qidiring...">
+                <button>🔍</button>
+            </div>
+
+            <div class="buyer-menu">
+                <a href="#" class="menu-item">
+                    <span class="icon">❤️</span>
+                    <span>Saralanganlar</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <span class="icon">🛒</span>
+                    <span class="cart-count" id="cartCount">0</span>
+                    <span>Buyurtmalar</span>
+                </a>
+                <a href="kabinet.html" class="menu-item profile-btn">
+                    <span class="icon">👤</span>
+                    <span id="buyerName">Profil</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="console-grid" style="margin-top: 24px;">
+            <article class="console-card">
+                <h3>Xaridor console</h3>
+                <p>Mahsulotlar real backenddan yuklanadi va xarid qilinsa buyurtma yozuvi saqlanadi.</p>
+            </article>
+            <article class="console-card">
+                <h3>AI tavsiya</h3>
+                <p>2 ta mahsulot tanlang, keyin savol yozing: “qaysi biri menga mos?”</p>
+            </article>
+            <article class="console-card">
+                <h3>Profil holati</h3>
+                <p>Profilingiz saqlangan bo'lsa, ismingiz yuqorida ko'rinadi.</p>
+            </article>
+        </section>
+
+        <div class="promo-banner">
+            <div class="banner-text">
+                <h2>Real savdo rejimi</h2>
+                <p>Pastdagi mahsulotlar backenddagi haqiqiy ro‘yxatdan olinadi. Xarid bosilganda order yozuvi yaratiladi.</p>
+                <button class="banner-btn" id="refreshProductsBtn">Yangilash</button>
+            </div>
+        </div>
+
+        <div class="category-list" id="categoryList">
+            <button class="cat-item active" data-category="Hammasi">Hammasi</button>
+            <button class="cat-item" data-category="Solishtirish AI">Solishtirish AI</button>
+        </div>
+
+        <section id="compareSection" class="promo-banner" style="display:none; margin-bottom:24px; align-items:flex-start;">
+            <div class="banner-text" style="width:100%;">
+                <h2>Sun'iy intellektli solishtirish</h2>
+                <p>Ikki mahsulotni tanlang va savolingizni yozing. Masalan: qaysi biri menga mos?</p>
+                <div id="compareList" style="display:grid; gap:10px; margin:18px 0;"></div>
+                <textarea id="comparePrompt" placeholder="Masalan: Men uchun kamera va batareya muhim, qaysi biri yaxshiroq?" style="width:100%; min-height:100px; margin-bottom:14px;"></textarea>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <button class="banner-btn" id="runAiCompare">AI bilan tahlil qilish</button>
+                    <button class="btn-secondary" id="clearCompare">Tanlovni tozalash</button>
+                </div>
+                <div id="compareResult" style="margin-top:18px; padding:18px; border-radius:18px; background:rgba(255,255,255,0.04); border:1px solid rgba(148,163,184,0.16); display:none;"></div>
+            </div>
+        </section>
+
+        <div id="statusMessage" style="margin:0 0 18px; color:#9bd5b0;"></div>
+        <div class="product-grid" id="productGrid"></div>
+    </main>
+
+    <script>
+        let products = [];
+        let activeCategory = 'Hammasi';
+        let compareSelection = JSON.parse(localStorage.getItem('compare_list') || '[]');
+        let currentUser = null;
+
+        function numericPrice(price) {
+            return Number(String(price).replace(/\s/g, '').replace(/[^\d]/g, '')) || 0;
+        }
+
+        function formatPrice(price) {
+            const value = numericPrice(price);
+            return value ? `${value.toLocaleString('en-US')} UZS` : '0 UZS';
+        }
+
+        function setStatus(message, isError = false) {
+            const box = document.getElementById('statusMessage');
+            box.textContent = message;
+            box.style.color = isError ? '#ff8f86' : '#9bd5b0';
+        }
+
+        function rebuildCategories() {
+            const categoryList = document.getElementById('categoryList');
+            const categories = ['Hammasi', ...new Set(products.map((item) => item.category || 'Boshqa')), 'Solishtirish AI'];
+            categoryList.innerHTML = '';
+
+            categories.forEach((category) => {
+                const button = document.createElement('button');
+                button.className = `cat-item ${category === activeCategory ? 'active' : ''}`;
+                button.dataset.category = category;
+                button.textContent = category;
+                button.addEventListener('click', () => filterByCategory(category));
+                categoryList.appendChild(button);
+            });
+        }
+
+        function addToCompare(productId) {
+            const product = products.find(item => item.id === productId);
+            if (!product) return;
+
+            if (compareSelection.find(item => item.id === productId)) return;
+            if (compareSelection.length >= 2) compareSelection.shift();
+
+            compareSelection.push(product);
+            localStorage.setItem('compare_list', JSON.stringify(compareSelection));
+            renderCompareSelection();
+        }
+
+        function removeFromCompare(productId) {
+            compareSelection = compareSelection.filter(item => item.id !== productId);
+            localStorage.setItem('compare_list', JSON.stringify(compareSelection));
+            renderCompareSelection();
+        }
+
+        function renderCompareSelection() {
+            const compareList = document.getElementById('compareList');
+            const compareSection = document.getElementById('compareSection');
+            compareList.innerHTML = '';
+            compareSection.style.display = activeCategory === 'Solishtirish AI' ? 'flex' : 'none';
+
+            if (!compareSelection.length) {
+                compareList.innerHTML = `<div style="color:#93a7c2;">Solishtirish uchun 2 ta mahsulot tanlang.</div>`;
+                return;
+            }
+
+            compareSelection.forEach((item) => {
+                const block = document.createElement('div');
+                block.style.cssText = 'display:flex; justify-content:space-between; gap:12px; align-items:center; padding:14px 16px; border-radius:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(148,163,184,0.16);';
+                block.innerHTML = `
+                    <div>
+                        <strong>${item.title}</strong>
+                        <div style="color:#93a7c2; margin-top:4px;">${formatPrice(item.price)} | ${item.category}</div>
+                    </div>
+                    <button class="btn-secondary" onclick="removeFromCompare(${item.id})">Olib tashlash</button>
+                `;
+                compareList.appendChild(block);
+            });
+        }
+
+        function renderProducts(data) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+
+            if (!data.length) {
+                grid.innerHTML = '<div class="card"><div class="card-body"><p class="title">Mahsulot topilmadi</p></div></div>';
+                return;
+            }
+
+            data.forEach((product) => {
+                const imageSrc = product.img || `https://picsum.photos/seed/${product.id}/320/420`;
+                grid.innerHTML += `
+                    <div class="card">
+                        <div class="card-img">
+                            <img src="${imageSrc}" alt="${product.title}" onerror="this.src='https://picsum.photos/320/420?random=${product.id}'">
+                            <span class="like">♡</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="title">${product.title}</p>
+                            <p class="rating">${product.category || 'Boshqa'}</p>
+                            <p class="rating">Joylangan: ${product.createdAt || '-'}</p>
+                            <div class="price-box" style="gap:8px; flex-wrap:wrap;">
+                                <span class="price">${formatPrice(product.price)}</span>
+                                <button class="add-btn" onclick="addToCompare(${product.id})">⚖</button>
+                                <button class="btn-secondary" onclick="buyProduct(${product.id})">Sotib olish</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter((product) => {
+                const matchesTitle = product.title.toLowerCase().includes(query);
+                const matchesCategory = activeCategory === 'Hammasi' || activeCategory === 'Solishtirish AI' || product.category === activeCategory;
+                return matchesTitle && matchesCategory;
+            });
+            renderProducts(filtered);
+        }
+
+        function filterByCategory(category) {
+            activeCategory = category;
+            document.querySelectorAll('.cat-item').forEach((button) => {
+                button.classList.toggle('active', button.dataset.category === category);
+            });
+            renderCompareSelection();
+            searchProducts();
+        }
+
+        function buildAiComparison(productsToCompare, prompt) {
+            const [first, second] = productsToCompare;
+            const cheaper = numericPrice(first.price) <= numericPrice(second.price) ? first : second;
+            const expensive = cheaper.id === first.id ? second : first;
+
+            return `
+                <h3 style="margin-bottom:10px;">AI tavsiyasi</h3>
+                <p style="margin-bottom:10px;">Savolingiz: <strong>${prompt}</strong></p>
+                <p style="margin-bottom:10px;"><strong>${cheaper.title}</strong> narx bo‘yicha qulayroq: ${formatPrice(cheaper.price)}.</p>
+                <p style="margin-bottom:10px;"><strong>${expensive.title}</strong> esa ${formatPrice(expensive.price)} narxda joylangan.</p>
+                <p>Ikkalasini manager paneldagi real sotuvlar bilan ham taqqoslash mumkin.</p>
+            `;
+        }
+
+        async function loadProducts() {
+            const response = await fetch('/api/get-products');
+            const data = await response.json();
+            products = data.map((item) => ({
+                id: item.id,
+                title: item.title || item.productName || 'Nomaʼlum mahsulot',
+                price: item.price || '0',
+                img: item.img || '',
+                category: item.category || 'Boshqa',
+                createdAt: item.createdAt || '-'
+            }));
+            rebuildCategories();
+            renderCompareSelection();
+            searchProducts();
+        }
+
+        async function loadOrdersCount() {
+            if (!currentUser?.email) return;
+            const response = await fetch(`/api/user-orders?email=${encodeURIComponent(currentUser.email)}`);
+            const data = await response.json();
+            document.getElementById('cartCount').textContent = Array.isArray(data) ? data.length : 0;
+        }
+
+        async function buyProduct(productId) {
+            if (!currentUser?.email) {
+                setStatus('Xarid qilish uchun avval profilingiz saqlangan bo‘lishi kerak.', true);
+                return;
+            }
+
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    productId,
+                    quantity: 1,
+                    buyerEmail: currentUser.email
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                setStatus(data.message || 'Buyurtma yaratishda xatolik yuz berdi.', true);
+                return;
+            }
+
+            setStatus(`${data.order.productName} uchun buyurtma saqlandi.`);
+            loadOrdersCount();
+        }
+
+        window.removeFromCompare = removeFromCompare;
+        window.addToCompare = addToCompare;
+        window.buyProduct = buyProduct;
+
+        window.onload = async function() {
+            currentUser = JSON.parse(localStorage.getItem('marketly_profile') || localStorage.getItem('marketly_active_user') || 'null');
+            if (currentUser?.firstname) document.getElementById('buyerName').innerText = currentUser.firstname;
+            await loadProducts();
+            await loadOrdersCount();
+        };
+
+        document.getElementById('refreshProductsBtn').addEventListener('click', loadProducts);
+
+        document.getElementById('clearCompare').addEventListener('click', () => {
+            compareSelection = [];
+            localStorage.setItem('compare_list', JSON.stringify(compareSelection));
+            document.getElementById('compareResult').style.display = 'none';
+            renderCompareSelection();
+        });
+
+        document.getElementById('runAiCompare').addEventListener('click', () => {
+            const compareResult = document.getElementById('compareResult');
+            const prompt = document.getElementById('comparePrompt').value.trim() || 'Qaysi biri menga mos?';
+
+            if (compareSelection.length < 2) {
+                compareResult.style.display = 'block';
+                compareResult.innerHTML = "AI tahlili uchun kamida 2 ta mahsulot tanlang.";
+                return;
+            }
+
+            compareResult.style.display = 'block';
+            compareResult.innerHTML = buildAiComparison(compareSelection, prompt);
+        });
+    </script>
+    <script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>

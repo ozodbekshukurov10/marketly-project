@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Marketly - Rolni Tasdiqlash</title>
+    <link rel="stylesheet" href="{% static 'css/role-select.css' %}"> <!-- Avvalgi CSS'ni ishlatamiz -->
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <style>
+        .role-container { display: flex; gap: 25px; margin-top: 30px; }
+        .role-card {
+            flex: 1; background: rgba(255,255,255,0.08);
+            padding: 32px 24px; border-radius: 28px;
+            border: 1px solid rgba(148,163,184,0.16); cursor: pointer;
+            transition: 0.3s; text-align: left;
+            min-height: 280px;
+        }
+        .role-card:hover { border-color: #5b7cff; transform: translateY(-10px); }
+        .role-card i { font-size: 50px; display: block; margin-bottom: 15px; }
+        .role-card h3 { margin-bottom: 10px; }
+        .role-card strong { display:block; margin-bottom: 12px; color:#7fc7ff; font-size:13px; letter-spacing:0.08em; text-transform:uppercase; }
+        .role-card ul { margin-top: 16px; padding-left: 18px; color:#9bb0cc; }
+        .selected { background: rgba(91,124,255,0.14) !important; color: #e8efff !important; border-color:#7fc7ff !important; }
+        .selected h3 { color: #ffffff !important; }
+        @media (max-width: 900px) { .role-container { flex-direction: column; } }
+    </style>
+</head>
+<body class="ios26-ui">
+
+<div class="container">
+    <section class="profile-card">
+        <div class="step-num">3</div>
+        <h2>Siz kimsiz?</h2>
+        <p>Ism va familiyadan keyin endi 2 xil oyna chiqadi. O'zingizga mos yo'lni tanlang.</p>
+
+        <div class="role-container">
+            <div class="role-card" onclick="selectRole(this, 'Tadbirkor')">
+                <strong>Tadbirkor oynasi</strong>
+                <i>🏢</i>
+                <h3>Tadbirkor</h3>
+                <p style="font-size: 13px;">O'z mahsulotlarini sotish va biznesni rivojlantirish uchun.</p>
+                <ul>
+                    <li>Mahsulot qo'shish</li>
+                    <li>Sotuv console</li>
+                    <li>Boshqaruv paneli</li>
+                </ul>
+            </div>
+            <div class="role-card" onclick="selectRole(this, 'Xaridor')">
+                <strong>Xaridor oynasi</strong>
+                <i>🛒</i>
+                <h3>Xaridor</h3>
+                <p style="font-size: 13px;">Sifatli mahsulot va xizmatlarni qidirish uchun.</p>
+                <ul>
+                    <li>AI solishtirish</li>
+                    <li>Kategoriyalar bo'yicha tanlash</li>
+                    <li>Shaxsiy tavsiyalar</li>
+                </ul>
+            </div>
+        </div>
+
+        <button id="finalSubmit" style="margin-top: 30px; display: none;" onclick="completeRegistration()">To'liq Yakunlash ✅</button>
+    </section>
+</div>
+
+<script>
+    let selectedRole = "";
+
+    function selectRole(element, role) {
+        // Hamma kartalardan 'selected' klassini olib tashlash
+        document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
+        // Tanlanganiga qo'shish
+        element.classList.add('selected');
+        selectedRole = role;
+        // Tugmani ko'rsatish
+        document.getElementById('finalSubmit').style.display = "block";
+    }
+
+    function completeRegistration() {
+        // LocalStorage'dan barcha ma'lumotlarni yig'ish
+        const profileData = JSON.parse(localStorage.getItem('marketly_profile')) || {};
+        const finalPayload = { ...profileData, role: selectedRole };
+
+        fetch('/save-final-user', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(finalPayload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            localStorage.setItem('marketly_profile', JSON.stringify(finalPayload));
+            localStorage.setItem('marketly_active_user', JSON.stringify({
+                email: finalPayload.email || '',
+                firstname: finalPayload.firstname || '',
+                role: finalPayload.role || '',
+                isAdmin: false
+            }));
+            window.location.href = data.redirectUrl || "index.html";
+        });
+    }
+</script>
+<script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>

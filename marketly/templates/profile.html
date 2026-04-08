@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Marketly - Profil Ma'lumotlari</title>
+    <link rel="stylesheet" href="{% static 'css/boshlash.css' %}"> <!-- Avvalgi uslubdan foydalanamiz -->
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <style>
+        .profile-card { margin-top: 50px; animation: fadeIn 0.5s ease; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .full-width { grid-column: span 2; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="ios26-ui">
+
+<div class="container">
+    <section class="step-card profile-card">
+        <div class="step-num">!</div>
+        <h2>Shaxsiy Ma'lumotlar</h2>
+        <p>Iltimos, profilingizni yakunlash uchun quyidagi ma'lumotlarni to'ldiring:</p>
+        
+        <form id="profileForm" class="input-grid">
+            <input type="text" id="firstname" placeholder="Ismingiz" required>
+            <input type="text" id="lastname" placeholder="Familiyangiz" required>
+            <input type="number" id="age" placeholder="Yoshingiz" required>
+            <input type="number" id="birthYear" placeholder="Tug'ilgan yilingiz" required>
+            <input type="tel" id="phone" class="full-width" placeholder="Telefon raqamingiz (+998...)" required>
+            
+            <button type="submit" class="full-width">Ro'yxatdan o'tishni yakunlash 🚀</button>
+        </form>
+    </section>
+</div>
+
+<script>
+document.getElementById('profileForm').onsubmit = function(e) {
+    e.preventDefault();
+
+    const savedData = JSON.parse(localStorage.getItem('marketly_user')) || {};
+    const profileData = {
+        ...savedData,
+        firstname: document.getElementById('firstname').value,
+        lastname: document.getElementById('lastname').value,
+        age: document.getElementById('age').value,
+        birthYear: document.getElementById('birthYear').value,
+        phone: document.getElementById('phone').value,
+        isRegistered: true // Ro'yxatdan o'tganlik belgisi
+    };
+
+    fetch('/save-profile', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(profileData)
+    })
+    .then(res => res.json())
+    .then(() => {
+        localStorage.setItem('marketly_profile', JSON.stringify(profileData));
+        localStorage.setItem('marketly_active_user', JSON.stringify({
+            email: profileData.email || '',
+            firstname: profileData.firstname,
+            role: profileData.role || '',
+            isAdmin: false
+        }));
+        window.location.href = "role-select.html";
+    });
+};
+
+</script>
+<script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>

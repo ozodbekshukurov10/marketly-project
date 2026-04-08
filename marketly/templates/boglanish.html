@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketly - Bog'lanish</title>
+    <link rel="stylesheet" href="{% static 'css/boglanish.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+</head>
+<body class="ios26-ui">
+
+    <!-- Navigatsiya -->
+    <nav class="navbar">
+        <div class="container nav-flex">
+            <div class="logo"><img class="logo-mark" src="{% static 'images/marketly-logo.svg' %}" alt="Marketly logo">Marketly<span>.</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Bosh sahifa</a></li>
+                <li><a href="xizmatlar.html">Xizmatlar</a></li>
+                <li><a href="mahsulotlar.html">Mahsulotlar</a></li>
+            </ul>
+            <a href="index.html" class="btn-back">Orqaga</a>
+        </div>
+    </nav>
+
+    <!-- Bog'lanish Bo'limi -->
+    <main class="contact-section">
+        <div class="container">
+            <header class="contact-header">
+                <h1>Biz bilan <span>Bog'laning</span></h1>
+                <p>Savollaringiz bormi? Biz doimo yordam berishga tayyormiz.</p>
+            </header>
+
+            <div class="contact-card">
+                <div class="email-box">
+                    <span class="label">Elektron pochta:</span>
+                    <div class="email-wrapper">
+                        <span id="emailText">ozodbek201024@gmail.com</span>
+                        <button onclick="copyEmail()" class="copy-btn" id="copyBtn">Nusxalash</button>
+                    </div>
+                    <p class="hint">Tugmani bosing va manzilni nusxalab oling.</p>
+                </div>
+
+                <div class="social-links">
+                    <p>Yoki ijtimoiy tarmoqlar orqali yozing:</p>
+                    <div class="icons">
+                        <a href="#" class="icon">Telegram</a>
+                        <a href="#" class="icon">Instagram</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Nusxalash funksiyasi uchun JS -->
+    <script>
+        function copyEmail() {
+            const email = document.getElementById("emailText").innerText;
+            const btn = document.getElementById("copyBtn");
+
+            navigator.clipboard.writeText(email).then(() => {
+                btn.innerText = "Nusxalandi! ✅";
+                btn.style.background = "#4CAF50";
+                btn.style.color = "white";
+                
+                setTimeout(() => {
+                    btn.innerText = "Nusxalash";
+                    btn.style.background = "#ffcc00";
+                    btn.style.color = "#333";
+                }, 2000);
+            });
+        }
+    </script>
+    <script src="{% static 'js/ios26-motion.js' %}"></script>
+
+</body>
+</html>

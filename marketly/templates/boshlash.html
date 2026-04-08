@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Marketly - Ro'yxatdan o'tish</title>
+    <link rel="stylesheet" href="{% static 'css/boshlash.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+</head>
+<body class="ios26-ui">
+
+<div class="container">
+    <!-- 1-Bosqich -->
+    <section class="step-card active" id="step1">
+        <div class="step-num">1</div>
+        <h2>Bepul Ro'yxatdan O'ting</h2>
+        <p>Kech qanday to'lovlarsiz o'z kabinetingizni yarating.</p>
+        <div class="input-row">
+            <input type="email" id="email" placeholder="ozodbek201024@gmail.com">
+            <button onclick="saveEmail()">Davom etish</button>
+        </div>
+    </section>
+
+    <!-- 2-Bosqich -->
+    <section class="step-card" id="step2">
+        <div class="step-num">2</div>
+        <h2>Xizmatni Tanlang</h2>
+        <p>Siz kimsiz? O'zingizga mos rolni tanlang:</p>
+        <div class="role-group">
+            <button onclick="saveRole('Tadbirkor')">Tadbirkor</button>
+            <button onclick="saveRole('Xaridor')">Xaridor</button>
+            <button onclick="saveRole('Tomoshabin')">Tomoshabin</button>
+        </div>
+    </section>
+
+    <!-- 3-Bosqich -->
+    <section class="step-card" id="step3">
+        <div class="step-num">3</div>
+        <h2>Natijani Qabul Qiling</h2>
+        <p>Loyihangiz ustida ish boshlanadi. Jarayonni kuzatib boring.</p>
+        <a href="profile.html" class="start-link" onclick="finalStep()">Boshlash 🚀</a>
+    </section>
+</div>
+
+<script>
+    let userData = { email: '', role: '' };
+
+    function saveEmail() {
+        userData.email = document.getElementById('email').value;
+        if(userData.email) {
+            localStorage.setItem('marketly_user', JSON.stringify(userData));
+            document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function saveRole(role) {
+        userData.role = role;
+        localStorage.setItem('marketly_user', JSON.stringify(userData));
+        // Serverga yuborish
+        fetch('/save-data', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(userData)
+        });
+        document.getElementById('step3').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function finalStep() {
+        localStorage.setItem('marketly_user', JSON.stringify(userData));
+    }
+</script>
+<script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>

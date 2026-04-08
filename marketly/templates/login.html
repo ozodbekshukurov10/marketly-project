@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketly - Admin Login</title>
+    <link rel="stylesheet" href="{% static 'css/boshlash.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <style>
+        body { min-height: 100vh; display: grid; place-items: center; }
+        .login-card { width: min(460px, 92vw); padding: 32px; border-radius: 24px; background: rgba(255,255,255,0.96); box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
+        .login-card h1 { margin-bottom: 10px; }
+        .login-card p { margin-bottom: 20px; color: #555; }
+        .login-card input { width: 100%; margin-bottom: 14px; padding: 14px 16px; border-radius: 14px; border: 1px solid #ddd; font-size: 16px; }
+        .login-card button { width: 100%; padding: 14px 16px; border: 0; border-radius: 14px; background: #111827; color: #fff; font-size: 16px; cursor: pointer; }
+        .remember-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 18px; color: #444; }
+        .hint { font-size: 14px; color: #6b7280; margin-top: 14px; }
+        .error { min-height: 22px; color: #c0392b; margin-top: 12px; }
+    </style>
+</head>
+<body class="ios26-ui">
+    <section class="login-card">
+        <h1>Admin kirish</h1>
+        <p>Admin panelga kirish uchun emailingiz va parolingizni kiriting.</p>
+        <form id="adminLoginForm">
+            {% csrf_token %}
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Parol" required>
+            <label class="remember-row">
+                <input type="checkbox" id="rememberMe" checked>
+                <span>Faqat emailni eslab qolish</span>
+            </label>
+            <button type="submit">Kirish</button>
+            <div class="error" id="errorBox"></div>
+        </form>
+        <div class="hint">Admin email: ozodbek201024@gmail.com</div>
+    </section>
+
+    <script>
+        function getCsrfToken() {
+            const tokenField = document.querySelector('input[name="csrfmiddlewaretoken"]');
+            return tokenField ? tokenField.value : '';
+        }
+
+        async function restoreSession() {
+            const response = await fetch('/api/admin/session');
+            const data = await response.json();
+            if (data.authenticated) {
+                window.location.href = 'admin-panel.html';
+                return;
+            }
+
+            const savedLogin = JSON.parse(localStorage.getItem('marketly_saved_login') || 'null');
+            if (savedLogin && savedLogin.email) {
+                document.getElementById('email').value = savedLogin.email;
+            }
+        }
+
+        document.getElementById('adminLoginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorBox = document.getElementById('errorBox');
+            errorBox.textContent = '';
+
+            const response = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                errorBox.textContent = data.message || "Kirishda xatolik yuz berdi";
+                return;
+            }
+
+            if (rememberMe) {
+                localStorage.setItem('marketly_saved_login', JSON.stringify({ email }));
+            } else {
+                localStorage.removeItem('marketly_saved_login');
+            }
+
+            localStorage.setItem('marketly_active_user', JSON.stringify({
+                email,
+                isAdmin: true,
+                remembered: rememberMe
+            }));
+
+            window.location.href = 'admin-panel.html';
+        });
+
+        restoreSession();
+    </script>
+    <script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "productName": "iPhone 15 Pro",
+    "title": "iPhone 15 Pro",
+    "price": "12000000",
+    "description": "Premium smartfon",
+    "category": "Elektronika",
+    "img": "",
+    "createdAt": "2026-04-03 22:00:00"
+  },
+  {
+    "id": 2,
+    "productName": "Macbook Air M2",
+    "title": "Macbook Air M2",
+    "price": "14500000",
+    "description": "Yengil va kuchli noutbuk",
+    "category": "Elektronika",
+    "img": "",
+    "createdAt": "2026-04-03 22:00:00"
+  },
+  {
+    "id": 3,
+    "productName": "Kreativ Dizayn",
+    "title": "Kreativ Dizayn",
+    "price": "500000",
+    "description": "Biznes uchun kreativ dizayn xizmati",
+    "category": "Xizmat",
+    "img": "",
+    "createdAt": "2026-04-03 22:00:00"
+  },
+  {
+    "id": 4,
+    "productName": "SMM Kursi",
+    "title": "SMM Kursi",
+    "price": "1200000",
+    "description": "SMM bo'yicha amaliy kurs",
+    "category": "Ta'lim",
+    "img": "",
+    "createdAt": "2026-04-03 22:00:00"
+  }
+]

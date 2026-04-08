@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Marketly - Shaxsiy Kabinet</title>
+    <link rel="stylesheet" href="{% static 'css/kabinet.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+</head>
+<body class="ios26-ui">
+
+    <div class="cabinet-wrapper">
+        <!-- Chap menyu -->
+        <aside class="sidebar">
+            <div class="user-brief">
+                <div class="avatar">👤</div>
+                <div class="user-info">
+                    <h3 id="userName">Azizbek</h3>
+                    <p id="userPhone">+998 90 123 45 67</p>
+                </div>
+            </div>
+            <nav class="side-nav">
+                <a href="#" class="active">👤 Mening ma'lumotlarim</a>
+                <a href="#">🛍 Buyurtmalarim</a>
+                <a href="#">❤️ Sevimlilar</a>
+                <a href="#">💳 To'lov usullari</a>
+                <hr>
+                <a href="index.html" class="logout-btn">Chiqish</a>
+            </nav>
+        </aside>
+
+        <!-- Asosiy ma'lumotlar qismi -->
+        <main class="main-content">
+            <section class="info-section">
+                <h1>Mening ma'lumotlarim</h1>
+                
+                <form id="editProfileForm">
+                    <div class="form-grid">
+                        <div class="input-box">
+                            <label>Ism</label>
+                            <input type="text" id="fname" value="Azizbek">
+                        </div>
+                        <div class="input-box">
+                            <label>Familiya</label>
+                            <input type="text" id="lname" value="Shukurov">
+                        </div>
+                        <div class="input-box">
+                            <label>Telefon raqam</label>
+                            <input type="tel" id="displayPhone" value="+998 90 123 45 67" readonly>
+                        </div>
+                        <div class="input-box">
+                            <label>Elektron pochta</label>
+                            <input type="email" id="displayEmail" value="ozodbek201024@gmail.com" readonly>
+                        </div>
+                        <div class="input-box full">
+                            <label>Tug'ilgan sana</label>
+                            <input type="date">
+                        </div>
+                    </div>
+                    <button type="submit" class="save-btn">Ma'lumotlarni saqlash</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // LocalStorage'dan ma'lumotlarni yuklash (agar bo'lsa)
+        window.onload = function() {
+            const userData = JSON.parse(localStorage.getItem('marketly_profile'));
+            if (userData) {
+                document.getElementById('userName').innerText = userData.firstname;
+                document.getElementById('fname').value = userData.firstname;
+                document.getElementById('lname').value = userData.lastname;
+                document.getElementById('userPhone').innerText = userData.phone;
+                document.getElementById('displayPhone').value = userData.phone || '';
+                document.getElementById('displayEmail').value = userData.email || '';
+            }
+        };
+
+        document.getElementById('editProfileForm').onsubmit = function(e) {
+            e.preventDefault();
+            alert("Ma'lumotlar yangilandi! ✅");
+        };
+        window.onload = function() {
+    const savedData = localStorage.getItem('marketly_profile');
+    
+    if (savedData) {
+        const user = JSON.parse(savedData);
+        
+        // Sahifadagi elementlarni to'ldiramiz
+        document.getElementById('userName').innerText = user.firstname;
+        document.getElementById('fname').value = user.firstname;
+        document.getElementById('lname').value = user.lastname || "";
+        document.getElementById('userPhone').innerText = user.phone;
+        document.getElementById('displayPhone').value = user.phone;
+        document.getElementById('displayEmail').value = user.email || '';
+    }
+};
+
+    </script>
+    <script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>

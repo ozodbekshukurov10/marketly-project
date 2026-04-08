@@ -1,0 +1,7 @@
+[2026-04-05 20:56:55] [LOGIN_SUCCESS] [Ozodbek Admin] Admin tizimga kirdi. IP: 127.0.0.1
+[2026-04-05 20:58:27] [SECURITY_TOGGLE] [Ozodbek Admin] Xavfsizlik rejimi o‘chirildi.
+[2026-04-05 20:58:29] [SECURITY_TOGGLE] [Ozodbek Admin] Xavfsizlik rejimi yoqildi.
+[2026-04-05 20:58:29] [SECURITY_TOGGLE] [Ozodbek Admin] Xavfsizlik rejimi o‘chirildi.
+[2026-04-05 20:58:30] [SECURITY_TOGGLE] [Ozodbek Admin] Xavfsizlik rejimi yoqildi.
+[2026-04-05 21:04:10] [LOGIN_SUCCESS] [Ozodbek Admin] Admin tizimga kirdi. IP: 127.0.0.1
+[2026-04-05 21:13:42] [LOGIN_SUCCESS] [Ozodbek Admin] Admin tizimga kirdi. IP: 127.0.0.1

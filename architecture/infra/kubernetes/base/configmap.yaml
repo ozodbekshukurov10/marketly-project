@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: marketly-config
+  namespace: marketly
+data:
+  ENVIRONMENT: "production"
+  MYSQL_HOST: "mysql.marketly.svc.cluster.local"
+  SPANNER_INSTANCE: "marketly-main"
+  BIGTABLE_INSTANCE: "marketly-analytics"

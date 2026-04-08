@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketly - Manager Panel</title>
+    <link rel="stylesheet" href="{% static 'css/ios26-ui.css' %}">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --panel: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --muted: #64748b;
+            --accent: #0f766e;
+            --accent-soft: #ccfbf1;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Segoe UI, sans-serif; background: linear-gradient(180deg, #ecfeff 0%, #f8fafc 55%); color: var(--text); }
+        .page { max-width: 1320px; margin: 0 auto; padding: 28px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+        .topbar h1 { margin: 0 0 8px; }
+        .topbar p { margin: 0; color: var(--muted); }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 14px; text-decoration: none; border: 1px solid var(--border); color: var(--text); background: #fff; font-weight: 600; cursor: pointer; }
+        .btn.primary { background: #0f172a; color: #fff; border-color: #0f172a; }
+        .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-bottom: 22px; }
+        .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 22px; padding: 20px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05); }
+        .stat small { color: var(--muted); }
+        .stat strong { display: block; margin-top: 10px; font-size: 28px; }
+        .layout { display: grid; grid-template-columns: 320px 1fr; gap: 18px; }
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 22px; padding: 22px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05); }
+        .search-box input { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--border); font-size: 15px; }
+        .search-meta { color: var(--muted); margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 14px 10px; border-bottom: 1px solid var(--border); }
+        th { color: var(--muted); font-weight: 600; }
+        .empty { padding: 22px 0; color: var(--muted); }
+        .money { color: var(--accent); font-weight: 700; }
+        .pill { display: inline-block; padding: 7px 11px; border-radius: 999px; background: var(--accent-soft); color: #115e59; font-size: 13px; }
+        .tips { margin: 0; padding-left: 18px; color: var(--muted); }
+        @media (max-width: 1100px) {
+            .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .layout { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            .stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="ios26-ui">
+    <div class="page">
+        <form id="csrfForm" style="display:none;">{% csrf_token %}</form>
+        <div class="topbar">
+            <div>
+                <h1>Manager Panel</h1>
+                <p>Oylik hisob-kitoblar, mahsulot qidiruvi va nom-narx ro‘yxati admin uchun bir joyda.</p>
+            </div>
+            <div class="actions">
+                <a class="btn" href="admin-panel.html">Dashboard</a>
+                <a class="btn" href="admin-security.html">Security Center</a>
+                <button class="btn primary" id="logoutBtn" type="button">Chiqish</button>
+            </div>
+        </div>
+
+        <section class="stats">
+            <div class="stat">
+                <small>Oy</small>
+                <strong id="monthLabel">-</strong>
+            </div>
+            <div class="stat">
+                <small>Oylik joylangan mahsulot</small>
+                <strong id="monthlyUploaded">0</strong>
+            </div>
+            <div class="stat">
+                <small>Oylik sotilgan mahsulot</small>
+                <strong id="monthlySold">0</strong>
+            </div>
+            <div class="stat">
+                <small>Oylik tushum</small>
+                <strong id="monthlyRevenue">0 UZS</strong>
+            </div>
+            <div class="stat">
+                <small>Eng ko‘p sotilgan</small>
+                <strong id="topProductName">-</strong>
+            </div>
+        </section>
+
+        <section class="layout">
+            <aside class="card">
+                <h2>Qidiruv va nazorat</h2>
+                <div class="search-box">
+                    <input type="search" id="searchInput" placeholder="Mahsulot nomi yoki kategoriya bo‘yicha qidiring">
+                </div>
+                <p class="search-meta" id="searchMeta">Barcha mahsulotlar ko‘rsatilmoqda.</p>
+                <div style="margin-top:18px;">
+                    <span class="pill" id="inventoryPill">Jami mahsulot: 0</span>
+                </div>
+                <div style="margin-top:18px;">
+                    <span class="pill" id="soldPill">Jami sotilgan: 0</span>
+                </div>
+                <h3 style="margin-top:24px;">Panel tarkibi</h3>
+                <ul class="tips">
+                    <li>Mahsulot nomi, narxi, kategoriya va sotilgan soni ko‘rinadi.</li>
+                    <li>Qidiruv paneli jadvalni real vaqtga yaqin filtrlab beradi.</li>
+                    <li>Oylik joylangan va sotilgan mahsulotlar alohida hisoblanadi.</li>
+                </ul>
+            </aside>
+
+            <section class="card">
+                <h2>Mahsulotlar jadvali</h2>
+                <div id="tableEmpty" class="empty" style="display:none;">Qidiruv bo‘yicha mahsulot topilmadi.</div>
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Nomi</th>
+                            <th>Narxi</th>
+                            <th>Kategoriya</th>
+                            <th>Sotilgan</th>
+                            <th>Tushum</th>
+                            <th>Joylangan sana</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </section>
+    </div>
+
+    <script>
+        let searchTimer = null;
+
+        function getCsrfToken() {
+            const tokenField = document.querySelector('#csrfForm input[name="csrfmiddlewaretoken"]');
+            return tokenField ? tokenField.value : '';
+        }
+
+        function formatCurrency(value) {
+            const number = Number(value || 0);
+            return `${number.toLocaleString('en-US')} UZS`;
+        }
+
+        function renderSummary(summary) {
+            document.getElementById('monthLabel').textContent = summary.monthLabel || '-';
+            document.getElementById('monthlyUploaded').textContent = summary.monthlyUploaded || 0;
+            document.getElementById('monthlySold').textContent = summary.monthlySold || 0;
+            document.getElementById('monthlyRevenue').textContent = formatCurrency(summary.monthlyRevenue || 0);
+            document.getElementById('topProductName').textContent = summary.topProductName || '-';
+            document.getElementById('inventoryPill').textContent = `Jami mahsulot: ${summary.totalInventory || 0}`;
+            document.getElementById('soldPill').textContent = `Jami sotilgan: ${summary.totalSold || 0}`;
+        }
+
+        function renderProducts(products, query) {
+            const tbody = document.querySelector('#productsTable tbody');
+            const table = document.getElementById('productsTable');
+            const empty = document.getElementById('tableEmpty');
+            const searchMeta = document.getElementById('searchMeta');
+            tbody.innerHTML = '';
+
+            searchMeta.textContent = query ? `"${query}" bo‘yicha ${products.length} ta natija topildi.` : 'Barcha mahsulotlar ko‘rsatilmoqda.';
+
+            if (!products.length) {
+                table.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            table.style.display = 'table';
+            empty.style.display = 'none';
+
+            products.forEach((product) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${product.name}</td>
+                    <td class="money">${formatCurrency(product.priceValue)}</td>
+                    <td>${product.category}</td>
+                    <td>${product.soldCount}</td>
+                    <td class="money">${formatCurrency(product.revenueValue)}</td>
+                    <td>${product.uploadedAt || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function loadManagerDashboard(query = '') {
+            const sessionResponse = await fetch('/api/admin/session');
+            const sessionData = await sessionResponse.json();
+            if (!sessionData.authenticated) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const searchParams = new URLSearchParams();
+            if (query) searchParams.set('q', query);
+
+            const response = await fetch(`/api/admin/manager-dashboard?${searchParams.toString()}`);
+            if (!response.ok) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const data = await response.json();
+            renderSummary(data.summary || {});
+            renderProducts(data.products || [], data.query || '');
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (event) => {
+            clearTimeout(searchTimer);
+            const query = event.target.value.trim();
+            searchTimer = setTimeout(() => loadManagerDashboard(query), 250);
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/admin/logout', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken()
+                }
+            });
+            localStorage.removeItem('marketly_active_user');
+            window.location.href = 'login.html';
+        });
+
+        loadManagerDashboard();
+    </script>
+    <script src="{% static 'js/ios26-motion.js' %}"></script>
+</body>
+</html>
